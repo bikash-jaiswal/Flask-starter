@@ -1,14 +1,35 @@
-.ONSHELL:
+# Makefile
+SHELL = /bin/bash
 
-install:
-	pip install --upgrade pip &&\
-		pip install -r requirements.txt
+clean: style
+	@echo "Cleaning the files"
+	find . -type f -name "*.DS_Store" -ls -delete
+	find . | grep -E "(__pycache__|\.pyc|\.pyo)" | xargs rm -rf
+	find . | grep -E ".pytest_cache" | xargs rm -rf
+	find . | grep -E ".ipynb_checkpoints" | xargs rm -rf
+	find . | grep -E ".trash" | xargs rm -rf
+	rm -f .coverage
 
-format:
-	black *.py
 
-lint:
-	pylint --disable=R,C,W1203,E1101
+style:
+	black .
+	python3 -m isort .
+
+.ONESHELL:
+venv:
+	python3 -m venv env
+	source env/bin/activate && \
+	pip install --upgrade pip && \
+	pip install -r requirements.txt
 
 run:
 	flask --app application run --debug
+
+help:
+    @echo "Commands:"
+    @echo "venv    : creates a virtual environment."
+    @echo "style   : executes style formatting."
+    @echo "clean   : cleans all unnecessary files."
+	@echo "run     : run flask application."
+
+.PHONY: venv style clean
